@@ -1,43 +1,45 @@
-from pydantic import BaseModel, EmailStr, AnyUrl, Field
-from typing import List, Dict, Optional
+from pydantic import BaseModel, EmailStr, AnyUrl, Field, computed_field
+from typing import List, Dict, Optional, Annotated
 
 class patient(BaseModel):
 
-    name: str = Field(max_length=20)
-    age: int = Field(gt=0, lt=120)
+    name: str
     email: EmailStr
     linkdin_url: AnyUrl
-    weight: float = Field(gt=0)
-    married: bool
-    allergies: Optional[List[str]] = Field(max_length=5, default=None)
+    age: int
+    weight: float #KG
+    height: float #Meters
+    married:bool
+    allergies: Optional[List[str]] = None
     contact_details: Dict[str, str]
 
-
-
+    @computed_field
+    @property
+    def bmi(self) -> float:
+        bmi = self.weight / (self.height ** 2)
+        return round(bmi, 2)
+    
 def insert_patient_data(patient: patient):
     print(patient.name)
     print(patient.age)
-    print(patient.allergies)
-    print(patient.email)
-    print(patient.linkdin_url)
+    print("BMI:", patient.bmi)
+    # print(patient.email)
+    # print(patient.contact_details)
     print("Patient data inserted successfully")
-
-def update_patient_data(patient: patient):
-    print(patient.name)
-    print(patient.age)
-    print("Patient data updated successfully")
 
 patient_info = {
     "name": "krish",
     "email": "krish@konda.com",
     "linkdin_url": "https://www.linkedin.com/in/krish-konda-123456789/",
-    "age": 22,
+    "age": 65,
     "weight": 70.5,
+    "height": 1.60,
     "married": True,
     # "allergies": ["pollen", "dust"],
     "contact_details": {
         "email": "krish@konda.com",
-        "phone": "7984992893"
+        "phone": "7984992893",
+        "emergency" : "939393939"
     }
 }
 

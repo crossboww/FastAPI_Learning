@@ -1,43 +1,43 @@
-from pydantic import BaseModel, EmailStr, AnyUrl, Field
-from typing import List, Dict, Optional
+from pydantic import BaseModel, EmailStr, AnyUrl, Field, model_validator
+from typing import List, Dict, Optional, Annotated
 
 class patient(BaseModel):
 
-    name: str = Field(max_length=20)
-    age: int = Field(gt=0, lt=120)
+    name: str
     email: EmailStr
     linkdin_url: AnyUrl
-    weight: float = Field(gt=0)
-    married: bool
-    allergies: Optional[List[str]] = Field(max_length=5, default=None)
+    age: int
+    weight: float
+    married:bool
+    allergies: Optional[List[str]] = None
     contact_details: Dict[str, str]
 
+    @model_validator(mode="after")
+    def val_emg_contact(self):
+        if self.age > 60 and "emergency" not in self.contact_details:
+            raise ValueError("Emergency contact is required for patients above 60 years")
+        return self
 
 
 def insert_patient_data(patient: patient):
     print(patient.name)
     print(patient.age)
-    print(patient.allergies)
     print(patient.email)
-    print(patient.linkdin_url)
+    print(patient.contact_details)
     print("Patient data inserted successfully")
-
-def update_patient_data(patient: patient):
-    print(patient.name)
-    print(patient.age)
-    print("Patient data updated successfully")
 
 patient_info = {
     "name": "krish",
     "email": "krish@konda.com",
     "linkdin_url": "https://www.linkedin.com/in/krish-konda-123456789/",
-    "age": 22,
+    "age": 65,
     "weight": 70.5,
     "married": True,
     # "allergies": ["pollen", "dust"],
     "contact_details": {
         "email": "krish@konda.com",
-        "phone": "7984992893"
+        "phone": "7984992893",
+        "emergency" : "939393939"
     }
 }
 
